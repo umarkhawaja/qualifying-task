@@ -21,27 +21,36 @@ public class BalanceController {
 
   @GetMapping("/monthly")
   public Balance getMonthlyBalance() {
-    List<Transaction> transactions = transactionService.getTransactions();
-    BigDecimal monthlyBalance = BigDecimal.ZERO;
-    for (Transaction transaction : transactions) {
-      if (transaction.getDate().getYear() == LocalDate.now().getYear()
-          && transaction.getDate().getMonthValue() == LocalDate.now().getMonthValue()) {
-        monthlyBalance = monthlyBalance.add(transaction.getAmount());
+    try {
+      List<Transaction> transactions = transactionService.getTransactions();
+      BigDecimal monthlyBalance = BigDecimal.ZERO;
+      for (Transaction transaction : transactions) {
+        if (transaction.getDate().getYear() == LocalDate.now().getYear()
+            && transaction.getDate().getMonthValue() == LocalDate.now().getMonthValue()) {
+          monthlyBalance = monthlyBalance.add(transaction.getAmount());
+        }
       }
-    }
 
-    return new Balance(BalanceType.MONTHLY, monthlyBalance);
+      return new Balance(BalanceType.MONTHLY, monthlyBalance);
+    } catch (Exception e) {
+      throw new RuntimeException("Unable to calculate the monthly balance");
+    }
   }
 
   @GetMapping("/cumulative")
   public Balance getCumulativeBalance() {
-    List<Transaction> transactions = transactionService.getTransactions();
+    try{
+      List<Transaction> transactions = transactionService.getTransactions();
 
-    BigDecimal cumulativeBalance = BigDecimal.ZERO;
-    for (Transaction transaction : transactions) {
-      cumulativeBalance = cumulativeBalance.add(transaction.getAmount());
+      BigDecimal cumulativeBalance = BigDecimal.ZERO;
+      for (Transaction transaction : transactions) {
+        cumulativeBalance = cumulativeBalance.add(transaction.getAmount());
+      }
+
+      return new Balance(BalanceType.CUMULATIVE, cumulativeBalance);
     }
-
-    return new Balance(BalanceType.CUMULATIVE, cumulativeBalance);
+    catch (Exception e) {
+      throw new RuntimeException("Unable to calculate the cumulative balance");
+    }
   }
 }
